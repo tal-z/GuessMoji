@@ -1,0 +1,439 @@
+<!-- chat/templates/chat/room.html -->
+<!DOCTYPE html>
+{% extends "base.html" %}
+{% load static %}
+{% block title %}
+    <title>Chat Room</title>
+{% endblock title %}
+{% block extra_headers%}
+    <!-- emoji picker -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+{% endblock extra_headers%}
+
+{% block content %}
+<body>
+    <div class="container card mt-2 rounded-0">
+        <div class="row m-2" id="row-header">
+            <h4>
+                <label>Room name:</label>
+                <text>{{ room_name }}</text>
+            </h4>
+            <h4>
+                <label class="mb-2">Username:</label>
+                <text>{{ username }}</text>
+            </h4>
+            <h6>
+                <label>Current Round:</label>
+                <text id="current-round">{{ current_round }}</text>
+            </h6>
+            <h6>
+                <label>Leader:</label>
+                <text id="leader">{{ leader }}</text>
+            </h6>
+            <h6>
+                <label>Category:</label>
+                <text id="category">{{ category }}</text>
+            </h6>
+        </div>
+
+        <div class="row m-2" id="row-1-wrapper">
+            <textarea
+                class="col-8"
+                id="emoji-clue-input"
+                type="text"
+                onkeydown="preventKeyboardInput(event)"
+                oninput="broadcastEmojiClueChange()"
+                placeholder="Emojis go here!"
+            ></textarea>
+            <div class="col text-center my-auto" id="end-round-col">
+                <label class="m-2">New Round Countdown:</label>
+                <text id="new-round-requests">{{ countdown_start_message }}</text>
+                <button class="btn btn-primary rounded-0" id="end-round-button" onclick="broadcastEndOfRoundVote();">
+                    Request New Round!
+                </button>
+            </div>
+
+        </div>
+
+        <div class="row m-2" id="row-2-wrapper">
+            <div class="accordion" id="accordionExample">
+              <div class="accordion-item rounded-0">
+                <h2 class="accordion-header rounded-0" id="headingOne">
+                  <button id="emojiCollapse" class="accordion-button rounded-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    Emoji Picker
+                  </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse rounded-0" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                  <div class="accordion-body rounded-0">
+                      <emoji-picker class="col"></emoji-picker>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+        </div>
+
+       <div class="row m-2" id="row-3-wrapper">
+            <div class="col-8" disabled id="chat-log"></div>
+            <div class="col overflow-auto" id="chat-members"></div>
+       </div>
+
+        <div class="row m-2" id="row-4-wrapper">
+            <input class="col rounded-0" id="chat-message-input" type="text">
+            <input class="col-1 btn btn-primary rounded-0" id="chat-message-submit" type="button" value="Send">
+
+            <div class="col-1">
+                <div class="form-group">
+                     <label id="chat-mode-label">Chat Mode</label>
+                     <div class="form-check form-switch custom-control custom-switch">
+                         <label class="switch">
+                            <input class="form-check-input custom-control-input rounded-0" type="checkbox" role="switch" id="chat-mode-switch" onchange="updateChatModeText()" checked data-toggle="tooltip" data-placement="bottom" title="Toggle to Guess/Chat">
+                         </label>
+                      </div>
+                 </div>
+            </div>
+        </div>
+
+        <div class="row m-2" id="row-5-wrapper">
+            <button
+                class="btn btn-primary rounded-0"
+                id="new-prompt-button"
+                onclick="newPrompt()"
+            >
+                Get Net Prompt!
+            </button>
+            <h4>
+                <label>Prompt:</label>
+                <text id="prompt">{{ prompt }}</text>
+            </h4>
+        </div>
+
+
+
+    </div>
+
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="winnerModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog rounded-0">
+        <div class="modal-content rounded-0">
+          <div class="modal-header rounded-0">
+            <h5 class="modal-title rounded-0" id="exampleModalLabel">Starting a New Round!</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body rounded-0" id="winnerModalBody">
+              Next leader: <text id="winnerModalText"></text>
+          </div>
+          <div class="modal-footer rounded-0">
+            <button type="button" class="btn btn-primary rounded-0" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    {{ room_name|json_script:"room-name" }}
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script>
+
+        const prompt = document.querySelector("#prompt");
+        const category = document.querySelector("#category");
+
+        async function newPrompt() {
+            var call = $.ajax({
+                dataType: "json",
+                url: '/chat/new_prompt/{{ room_name }}/',
+                data: {username: userName},
+            });
+
+            //Listening to completion
+            call.done(function(data){
+                if (Object.hasOwn(data, 'error')) {
+                    console.log(data.error);
+                } else {
+                    prompt.textContent = `"${data.updated_prompt}"`;
+                    category.textContent = data.updated_category;
+                    broadcastNewCategory(data.updated_category);
+                }
+
+            });
+            }
+
+        var textarea = document.getElementById('chat-log');
+
+        const emojiCollapse = document.getElementById('emojiCollapse');
+
+        const roomName = JSON.parse(document.getElementById('room-name').textContent);
+
+        const isUserName = ("{{ username }}" != "None") && ("{{ username }}" != "");
+        const userName = isUserName ? "{{ username }}" : "Anonymous";
+
+        const chatMembers = {};
+        const chatMemberDisplay = new Set();
+        let numMembers = Object.keys(chatMembers).length;
+        let numUpdateRequests = 0;
+
+        var leader = "{{ leader }}";
+
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/chat/'
+            + roomName
+            + '/'
+            + userName
+            + '/'
+        );
+
+        const chatModeSwitch = document.querySelector('#chat-mode-switch');
+        const chatModeLabel = document.querySelector('#chat-mode-label');
+        function updateChatModeText() {
+            if (chatModeSwitch.checked) {
+                chatModeLabel.innerText = "Chat Mode";
+            } else {
+                chatModeLabel.innerText = "Guess Mode";
+            }
+        }
+
+        const winnerModal = new bootstrap.Modal(document.getElementById('winnerModal'), {});
+        const winnerModalText = document.getElementById('winnerModalText');
+
+
+
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            // populate chat messages
+            if (Object.hasOwn(data, 'message')) {
+                document.querySelector('#chat-log').innerHTML += data.message;
+                textarea.scrollTop = textarea.scrollHeight;
+            }
+
+            // update last affirmation timestamp in chatMembers Object
+            if (Object.hasOwn(data, 'username')) {
+                chatMembers[data.username] = Date.now();
+            }
+
+            // evict old entries from chatMembers
+            now = Date.now();
+            for (const [key, value] of Object.entries(chatMembers)) {
+                diff = (now - value) / 1000;
+                if (diff > 2) {
+                    // Remove key from chatMembers
+                    delete chatMembers[key];
+                }
+
+            }
+            // display chatMembers
+            document.querySelector('#chat-members').innerText = Object.keys(chatMembers).join("\n");
+
+            // Count requests until new round
+            let numMembers = Object.keys(chatMembers).length;
+            if (Object.hasOwn(data, 'round_requests_update')) {
+                numUpdateRequests = data.round_requests_update;
+            }
+            document.querySelector('#new-round-requests').innerText = Math.floor(numMembers/2) + 1 - numUpdateRequests;
+
+
+            // update emoji clue
+            if (Object.hasOwn(data, 'update_emoji_clue')) {
+                document.querySelector("#emoji-clue-input").value = data['update_emoji_clue'];
+            }
+
+            // Update count of new round requests
+            if (Object.hasOwn(data, 'round_requests_update')) {
+
+            }
+
+            // Start next round
+            if (Object.hasOwn(data, 'start_next_round')) {
+                leader = data['leader'];
+                next_round = data['start_next_round'];
+
+                document.querySelector("#leader").textContent = leader;
+                document.querySelector("#current-round").textContent = next_round;
+
+                winnerModalText.textContent = leader;
+                winnerModal.show();
+
+                var clue = document.querySelector("#emoji-clue-input");
+                clue.value = "";
+                if (userName === leader) {
+                    clue.disabled = false;
+                } else {
+                    clue.disabled = true;
+                }
+
+            }
+
+            // Update category
+            if (Object.hasOwn(data, 'new_category')) {
+                category.textContent = data.new_category;
+            }
+
+        };
+
+        const toggleEmojiInput = () => {
+            const emojiInputIsOpen = emojiCollapse.attributes['aria-expanded'].value === 'true';
+            const isLeader = userName === leader;
+            const shouldToggleEmojiInput = (!isLeader && emojiInputIsOpen) || (isLeader && !emojiInputIsOpen);
+
+            if (shouldToggleEmojiInput) {
+                // Toggle the accordion
+                var collapseElementList = [].slice.call(document.querySelectorAll('.collapse'))
+                var collapseList = collapseElementList.map(function (collapseEl) {
+                  return new bootstrap.Collapse(collapseEl)
+                })
+            }
+        }
+
+        /*chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+            window.location = '/chat/';
+        };*/
+
+        document.querySelector('#chat-message-input').focus();
+        document.querySelector('#chat-message-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#chat-message-submit').click();
+            }
+        };
+        function insertAtCursor(myField, myValue) {
+            var startPos = myField.selectionStart;
+            var endPos = myField.selectionEnd;
+            var prevLen = myField.value.length;
+            //IE support
+            if (document.selection) {
+                myField.focus();
+                sel = document.selection.createRange();
+                sel.text = myValue;
+            }
+            //MOZILLA and others
+            else if (myField.selectionStart || myField.selectionStart === 0) {
+
+                myField.value = myField.value.substring(0, startPos)
+                    + myValue
+                    + myField.value.substring(endPos, prevLen);
+            } else {
+                myField.value += myValue;
+            }
+            var shiftLen = (myField.value.length - prevLen);
+            return endPos + shiftLen;
+        }
+        document.querySelector('emoji-picker')
+          .addEventListener('emoji-click', event => {
+            if (userName === leader) {
+                lastPos = insertAtCursor(document.querySelector('#emoji-clue-input'), event.detail.unicode);
+                document.querySelector('#emoji-clue-input').focus();
+                document.querySelector('#emoji-clue-input').selectionStart = lastPos;
+                document.querySelector('#emoji-clue-input').selectionEnd = lastPos;
+                broadcastEmojiClueChange();
+            }
+          });
+
+        function htmlEncode(str) {
+            return str.replace(/[&<>"']/g, function($0) {
+                return "&" + {"&":"amp", "<":"lt", ">":"gt", '"':"quot", "'":"#39"}[$0] + ";";
+            });
+        }
+        function formatChatMessage(userName, messageText) {
+            messageText = htmlEncode(messageText);
+            if (!chatModeSwitch.checked) {
+                messageText = `<i>${messageText}</i>`;
+            }
+            return `<text><label>${userName}:</label>  ${messageText}</text><br>`;
+        }
+
+        document.querySelector('#chat-message-submit').onclick = function(e) {
+            const messageInputDom = document.querySelector('#chat-message-input');
+            const messageText = messageInputDom.value;
+            chatSocket.send(JSON.stringify({
+                'message': formatChatMessage(userName, messageText),
+                'username': userName,
+                'chat_mode': chatModeSwitch.checked  // false === guess mode, so actively process guesses
+            }));
+            messageInputDom.value = '';
+        };
+
+        // Set Interval for sending username to consumer, who broadcasts it to all connections
+        const intervalID = setInterval(() => {
+            chatSocket.send(JSON.stringify({
+                'username': userName
+            }));
+            broadcastEmojiClueChange();
+        }, 1000);
+
+
+        // Set Interval for sending request for new round
+        // const roundInterval = setInterval(() => {
+        //      chatSocket.send(JSON.stringify({
+        //         'start_new_round': userName
+        //      }));
+        // }, 10000);
+
+
+        // Styling
+        function resizeChatMembers() {
+            document.querySelector("#chat-members").style.height = `${document.querySelector("#chat-log").offsetHeight}px`;
+        }
+        resizeChatMembers()
+
+        new ResizeObserver(resizeChatMembers).observe(document.querySelector("#chat-log"));
+
+        // Prevent keyboard input on emoji-clue-input, except for arrow keys and backspace
+        const allowedKeys = new Set([
+            "Backspace",
+            "ArrowLeft",
+            "ArrowRight",
+            "ArrowUp",
+            "ArrowDown",
+            "Tab",
+            "Delete",
+            "Shift",
+        ]);
+        function preventKeyboardInput(event) {
+            if (!(allowedKeys.has(event["key"]))) {
+                event.preventDefault();
+            }
+        }
+
+        // Function to clean the emoji-clue-input
+        const regExpEmoji = /(\u2B55|[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]|[1-9]\uFE0F)/g;
+        const cleanEmojiClueInput = (value) => {
+            emojiArray = [...value.matchAll(regExpEmoji)];
+            emojis = emojiArray.map(item => item[0]).join("");
+            return emojis;
+        }
+
+
+        // Broadcast changes to emoji-clue-input
+        function broadcastEmojiClueChange() {
+            if (userName === leader) {
+                clue = document.querySelector("#emoji-clue-input").value;
+                chatSocket.send(JSON.stringify({
+                    'username': userName,
+                    'update_emoji_clue': cleanEmojiClueInput(clue)
+                }));
+            }
+        }
+
+        // Broadcast vote for end of round
+        function broadcastEndOfRoundVote() {
+            chatSocket.send(JSON.stringify({
+                'start_new_round': userName
+            }));
+        }
+
+        // Broadcast new category
+        function broadcastNewCategory(category) {
+            chatSocket.send(JSON.stringify({
+                'new_category': category
+            }));
+        }
+
+</script>
+</body>
+{% endblock content %}
