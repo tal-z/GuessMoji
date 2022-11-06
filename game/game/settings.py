@@ -36,7 +36,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
-ALLOWED_HOSTS = ["GuessMoji-dev.us-east-1.elasticbeanstalk.com", "127.0.0.1"]
 
 # Application definition
 
@@ -95,6 +94,8 @@ if ENVIRONMENT == "local":
             },
         },
     }
+    ALLOWED_HOSTS = ["127.0.0.1"]
+
 
 if ENVIRONMENT == "production":
     CHANNEL_LAYERS = {
@@ -105,6 +106,12 @@ if ENVIRONMENT == "production":
             },
         },
     }
+    ALLOWED_HOSTS = [
+        "GuessMoji-dev.us-east-1.elasticbeanstalk.com",
+        os.getenv("HEALTH_CHECK_IP"),
+    ]
+
+
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
@@ -157,7 +164,3 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-SESSION_COOKIE_SECURE = True
-
-CSRF_COOKIE_SECURE = True
