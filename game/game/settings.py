@@ -10,8 +10,22 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+# Imports
 from pathlib import Path
 import os
+
+try:
+    __import__('pysqlite3')
+    import sys
+    sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+    ENVIRONMENT = "production"
+except ModuleNotFoundError:
+    ENVIRONMENT = "local"
+
+if ENVIRONMENT == "local":
+    from dotenv import load_dotenv
+    load_dotenv()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,13 +34,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ki6lc2w7npju#f@x3j308wfcs+g!rgo2^rph6)$$9&=f%56y2j'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ["GuessMoji-dev.us-east-1.elasticbeanstalk.com", "127.0.0.1"]
 
 # Application definition
 
@@ -74,15 +84,27 @@ WSGI_APPLICATION = 'game.wsgi.application'
 
 ASGI_APPLICATION = 'game.asgi.application'
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+#
+if ENVIRONMENT == "local":
+    DEBUG = True
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [("127.0.0.1", 6379)],
+            },
         },
-    },
-}
+    }
 
+if ENVIRONMENT == "production":
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [("master.dev-redis-cluster.qrsaxv.use1.cache.amazonaws.com", 6379)],
+            },
+        },
+    }
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
@@ -129,9 +151,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+SESSION_COOKIE_SECURE = True
+
+CSRF_COOKIE_SECURE = True
