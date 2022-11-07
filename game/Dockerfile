@@ -6,4 +6,5 @@ RUN mkdir $WEBAPP_DIR
 WORKDIR $WEBAPP_DIR
 
 ADD requirements.txt $WEBAPP_DIR/
+RUN pip install --upgrade pip
 RUN pip install -r requirements.txt

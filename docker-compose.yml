@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  redis:
+    image: redis
+    command: redis-server
+    ports:
+      - '6379:6379'
+  web:
+    environment:
+      DJANGO_SETTINGS_MODULE: "game.settings"
+      DJANGO_SECRET_KEY: 3f3e22695a75f9a14d9c7c29992f7bd50bf78a9fae8e6a576349210b996a777cd8c50b96bce471f2f4718f98187471eed150c2e65c14b3cd14577459274201a0
+      HEALTH_CHECK_IP: ""
+    build: ./game
+    image: guessmoji-web
+    command: daphne -b 0.0.0.0 -p 8000 game.asgi:application
+    volumes:
+      - ./game:/game
+    ports:
+      - "8000:8000"
+    links:
+      - redis
