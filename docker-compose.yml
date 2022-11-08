@@ -13,7 +13,6 @@ services:
       HEALTH_CHECK_IP: ""
     build: ./game
     image: guessmoji-web
-    command: daphne -b 0.0.0.0 -p 8000 game.asgi:application
     volumes:
       - ./game:/game
     ports:

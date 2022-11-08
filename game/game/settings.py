@@ -13,18 +13,16 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 # Imports
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
-try:
+load_dotenv()
+
+ENVIRONMENT = os.getenv("ENVIRONMENT")
+
+if ENVIRONMENT == "production":
     __import__('pysqlite3')
     import sys
     sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
-    ENVIRONMENT = "production"
-except ModuleNotFoundError:
-    ENVIRONMENT = "local"
-
-if ENVIRONMENT == "local":
-    from dotenv import load_dotenv
-    load_dotenv()
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -53,6 +51,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -86,38 +85,22 @@ ASGI_APPLICATION = 'game.asgi.application'
 #
 if ENVIRONMENT == "local":
     DEBUG = True
-    CHANNEL_LAYERS = {
-        "default": {
-            "BACKEND": "channels_redis.core.RedisChannelLayer",
-            "CONFIG": {
-                "hosts": [("127.0.0.1", 6379)],
-            },
-        },
-    }
     ALLOWED_HOSTS = ["127.0.0.1"]
 
 
 if ENVIRONMENT == "production":
-    CHANNEL_LAYERS = {
-        "default": {
-            "BACKEND": "channels_redis.core.RedisChannelLayer",
-            "CONFIG": {
-                "hosts": [("master.dev-redis-cluster.qrsaxv.use1.cache.amazonaws.com", 6379)],
-            },
-        },
-    }
-    ALLOWED_HOSTS = [
-        "GuessMoji-dev.us-east-1.elasticbeanstalk.com",
-        os.getenv("HEALTH_CHECK_IP"),
-    ]
+    DEBUG = False
+    ALLOWED_HOSTS = ["172.31.3.66", "guessmoji.us-east-1.elasticbeanstalk.com"]
 
-DEBUG = False
-ALLOWED_HOSTS = ["172.31.76.196", "44.211.29.245", "127.0.0.1"]
+# Message Broker Info
+RABBITMQ_USERNAME = os.getenv("RABBITMQ_USERNAME")
+RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD")
+RABBITMQ_BROKER_URL = os.getenv("RABBITMQ_BROKER_URL")
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "BACKEND": "channels_rabbitmq.core.RabbitmqChannelLayer",
         "CONFIG": {
-            "hosts": [("redis", 6379)],
+            "host": f"amqps://{RABBITMQ_USERNAME}:{RABBITMQ_PASSWORD}@{RABBITMQ_BROKER_URL}",
         },
     },
 }
