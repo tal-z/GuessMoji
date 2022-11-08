@@ -1,0 +1,92 @@
+<!-- chat/templates/chat/lobby.html -->
+<!DOCTYPE html>
+{% extends "base.html" %}
+
+{% block title %}
+    <title>Chat Rooms</title>
+{% endblock title %}
+
+{% block content %}
+<body>
+    <div class="container">
+        <h1>Enter a Chat Room!</h1>
+
+        <text for="basic-url" class="form-label">Enter your username</text>
+        <div class="input-group mb-3 rounded-0">
+          <span class="input-group-text rounded-0" id="basic-addon1">@</span>
+          <input id="username-input" type="text" class="form-control rounded-0" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1"  value="{{ placeholder_username }}">
+        </div>
+
+        <div class="card mt-4 rounded-0">
+            <div class="card-body rounded-0">
+                <div class="card-title rounded-0">
+                    {% if room_names %}
+                    <text>Join an Active Room</text>
+                    {% else %}
+                    <text>No Active Rooms</text>
+                    {% endif %}
+                </div>
+                <table class="table table-responsive table-striped table-bordered table-hover table-sm align-middle">
+                    {% for room_name in room_names %}
+                        <tr role="button" onclick="enterExistingRoom('{{ room_name }}')"><td class="col-md-3">{{ room_name }}</td></tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+
+        <div class="card mt-4 rounded-0">
+            <div class="card-body">
+        <text for="basic-url" class="form-label">Create a New Room:</text>
+
+        <div class="input-group mb-3">
+          <span class="input-group-text rounded-0" id="basic-addon3">http://127.0.0.1:8000/chat/</span>
+          <input id="room-name-input" type="text" class="form-control rounded-0" id="basic-url" aria-describedby="basic-addon3" value="{{ placeholder_room_name }}">
+        </div>
+        <input class="btn btn-primary rounded-0" id="room-user-submit" type="button" value="Create New Room">
+            </div>
+        </div>
+
+    </div>
+    <script>
+        document.querySelector('#room-name-input').focus();
+        document.querySelector('#room-name-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#room-user-submit').click();
+            }
+        };
+
+        document.querySelector('#username-input').focus();
+        document.querySelector('#username-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#room-user-submit').click();
+            }
+        };
+
+        document.querySelector('#room-user-submit').onclick = function(e) {
+            var roomName = document.querySelector('#room-name-input').value;
+            var userName = document.querySelector('#username-input').value;
+            var urlParams = `?username=${encodeURIComponent(userName)}`;
+            window.location = '/chat/' + roomName + '/' + urlParams;
+        };
+
+        function enterExistingRoom(roomName) {
+            var userName = document.querySelector('#username-input').value;
+            var urlParams = `?username=${encodeURIComponent(userName)}`;
+            window.location = '/chat/' + roomName + '/' + urlParams;
+        };
+
+        // Force Reload
+        // NOTE: Not working.
+        // For some reason, this stops rooms from being destroyed when they empty out.
+        /*
+        var perfEntries = performance.getEntriesByType("navigation");
+        if (
+                (perfEntries[0].type === "back_forward")
+                || (perfEntries[0].type === "navigate")
+            ) {
+            location.reload(true);
+        }
+        */
+    </script>
+</body>
+{% endblock content %}

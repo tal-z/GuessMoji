@@ -1,16 +1,30 @@
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+
 from prompts.models import Prompt, Room, RoomMember
 from .utils import generate_room_name, generate_username
 
 
+def unauthorized(request):
+    return render(request, "chat/unauthorized.html")
+
+
 def index(request):
+    return render(request, "chat/index.html")
+
+
+@login_required(login_url="unauthorized")
+def lobby(request):
     placeholder_room_name = generate_room_name()
     placeholder_username = generate_username()
     room_names = Room.objects.values_list("room_name", flat=True).all()
-    return render(request, "chat/index.html", {"placeholder_room_name": placeholder_room_name, "placeholder_username": placeholder_username, "room_names": room_names})
+    return render(request, "chat/lobby.html",
+                  {"placeholder_room_name": placeholder_room_name, "placeholder_username": placeholder_username,
+                   "room_names": room_names})
 
 
+@login_required()
 def room(request, room_name):
     username = request.GET.get("username")
     room, _ = Room.objects.get_or_create(room_name=room_name)
@@ -28,6 +42,7 @@ def room(request, room_name):
     )
 
 
+@login_required()
 def new_prompt(request, room_name):
     if not request.method == "GET":
         raise Exception("Invalid method")
