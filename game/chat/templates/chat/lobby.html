@@ -39,7 +39,7 @@
         <text for="basic-url" class="form-label">Create a New Room:</text>
 
         <div class="input-group mb-3">
-          <span class="input-group-text rounded-0" id="basic-addon3">http://127.0.0.1:8000/chat/</span>
+          <span class="input-group-text rounded-0" id="basic-addon3">{{ domain }}/chat/room/</span>
           <input id="room-name-input" type="text" class="form-control rounded-0" id="basic-url" aria-describedby="basic-addon3" value="{{ placeholder_room_name }}">
         </div>
         <input class="btn btn-primary rounded-0" id="room-user-submit" type="button" value="Create New Room">
@@ -66,13 +66,13 @@
             var roomName = document.querySelector('#room-name-input').value;
             var userName = document.querySelector('#username-input').value;
             var urlParams = `?username=${encodeURIComponent(userName)}`;
-            window.location = '/chat/' + roomName + '/' + urlParams;
+            window.location = '/chat/room/' + roomName + '/' + urlParams;
         };
 
         function enterExistingRoom(roomName) {
             var userName = document.querySelector('#username-input').value;
             var urlParams = `?username=${encodeURIComponent(userName)}`;
-            window.location = '/chat/' + roomName + '/' + urlParams;
+            window.location = '/chat/room/' + roomName + '/' + urlParams;
         };
 
         // Force Reload
