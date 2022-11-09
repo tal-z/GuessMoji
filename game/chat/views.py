@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 
 from prompts.models import Prompt, Room, RoomMember
 from .utils import generate_room_name, generate_username
@@ -19,9 +20,16 @@ def lobby(request):
     placeholder_room_name = generate_room_name()
     placeholder_username = generate_username()
     room_names = Room.objects.values_list("room_name", flat=True).all()
-    return render(request, "chat/lobby.html",
-                  {"placeholder_room_name": placeholder_room_name, "placeholder_username": placeholder_username,
-                   "room_names": room_names})
+    return render(
+        request,
+        "chat/lobby.html",
+        {
+            "placeholder_room_name": placeholder_room_name,
+            "placeholder_username": placeholder_username,
+            "room_names": room_names,
+            "domain": settings.DOMAIN
+        }
+    )
 
 
 @login_required()

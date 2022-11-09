@@ -27,7 +27,6 @@ class Prompt(models.Model):
         return str(return_dict)
 
 
-
 class Room(models.Model):
     room_name = models.CharField(max_length=50, unique=True)
     prompt = models.ForeignKey(Prompt, on_delete=models.CASCADE, null=True)
@@ -73,9 +72,29 @@ class Room(models.Model):
         self.save()
         return self.prompt
 
+
 class RoomMember(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     username = models.CharField(max_length=50)
 
     class Meta:
         unique_together = ("room", "username",)
+
+
+class PromptClue(models.Model):
+    room_id = models.IntegerField()
+    leader_id = models.IntegerField()
+    prompt = models.ForeignKey(Prompt, on_delete=models.PROTECT)
+    clue = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("room_id", "leader_id", "prompt", "clue",)
+
+
+class ClueGuess(models.Model):
+    room_id = models.IntegerField()
+    roommember_id = models.IntegerField()
+    clue = models.CharField(max_length=50)
+    guess = models.CharField(max_length=500)
+    created_at = models.DateTimeField(auto_now_add=True)

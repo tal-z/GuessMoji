@@ -19,6 +19,7 @@ load_dotenv()
 
 ENVIRONMENT = os.getenv("ENVIRONMENT")
 
+# Use pysqlite in production
 if ENVIRONMENT == "production":
     __import__('pysqlite3')
     import sys
@@ -78,11 +79,11 @@ TEMPLATES = [
     },
 ]
 
+# App locations
 WSGI_APPLICATION = 'game.wsgi.application'
-
 ASGI_APPLICATION = 'game.asgi.application'
 
-#
+# Environment-specific allowed hosts
 if ENVIRONMENT == "local":
     DEBUG = True
     ALLOWED_HOSTS = ["127.0.0.1"]
@@ -92,7 +93,7 @@ if ENVIRONMENT == "production":
     DEBUG = False
     ALLOWED_HOSTS = ["172.31.3.66", "guessmoji.us-east-1.elasticbeanstalk.com"]
 
-# Message Broker Info
+# Message Broker -- Currently Shared in All Environments
 RABBITMQ_USERNAME = os.getenv("RABBITMQ_USERNAME")
 RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD")
 RABBITMQ_BROKER_URL = os.getenv("RABBITMQ_BROKER_URL")
@@ -107,7 +108,6 @@ CHANNEL_LAYERS = {
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -157,3 +157,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+DOMAIN = os.getenv("DOMAIN")
