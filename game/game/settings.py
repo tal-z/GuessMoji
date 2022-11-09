@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'daphne',
     'prompts',
     'chat',
-    'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
