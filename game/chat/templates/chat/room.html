@@ -102,7 +102,7 @@
                 id="new-prompt-button"
                 onclick="newPrompt()"
             >
-                Get Net Prompt!
+                Get New Prompt!
             </button>
             <h4>
                 <label>Prompt:</label>
@@ -179,15 +179,6 @@
 
         var leader = "{{ leader }}";
 
-        const chatSocket = new WebSocket(
-            'ws://'
-            + window.location.host
-            + '/ws/chat/'
-            + roomName
-            + '/'
-            + userName
-            + '/'
-        );
 
         const chatModeSwitch = document.querySelector('#chat-mode-switch');
         const chatModeLabel = document.querySelector('#chat-mode-label');
@@ -202,8 +193,15 @@
         const winnerModal = new bootstrap.Modal(document.getElementById('winnerModal'), {});
         const winnerModalText = document.getElementById('winnerModalText');
 
-
-
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/chat/'
+            + roomName
+            + '/'
+            + userName
+            + '/'
+        );
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
@@ -242,11 +240,6 @@
             // update emoji clue
             if (Object.hasOwn(data, 'update_emoji_clue')) {
                 document.querySelector("#emoji-clue-input").value = data['update_emoji_clue'];
-            }
-
-            // Update count of new round requests
-            if (Object.hasOwn(data, 'round_requests_update')) {
-
             }
 
             // Start next round
@@ -343,7 +336,7 @@
         function formatChatMessage(userName, messageText) {
             messageText = htmlEncode(messageText);
             if (!chatModeSwitch.checked) {
-                messageText = `<i>${messageText}</i>`;
+                messageText = `<i><text style="color: #4ccf94;">${messageText}</text></i>`;
             }
             return `<text><label>${userName}:</label>  ${messageText}</text><br>`;
         }
@@ -366,14 +359,6 @@
             }));
             broadcastEmojiClueChange();
         }, 1000);
-
-
-        // Set Interval for sending request for new round
-        // const roundInterval = setInterval(() => {
-        //      chatSocket.send(JSON.stringify({
-        //         'start_new_round': userName
-        //      }));
-        // }, 10000);
 
 
         // Styling
