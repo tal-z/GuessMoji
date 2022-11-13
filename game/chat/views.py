@@ -3,7 +3,10 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 
-from prompts.models import Prompt, Room, RoomMember
+from .models import Room, RoomMember
+
+from prompts.models import Prompt
+
 from .utils import generate_room_name, generate_username
 
 

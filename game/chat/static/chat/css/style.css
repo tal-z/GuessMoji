@@ -50,6 +50,7 @@ text,
     max-width: 40%;
     margin: 5px;
     border: 1px solid;
+    white-space: nowrap;
 }
 
 #row-2-wrapper {}
