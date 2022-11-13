@@ -91,7 +91,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if guess_mode:
             room = await Room.objects.select_related('prompt').aget(room_name=self.room_name)
             parsed_message = re.findall(r"<i>(.+)</i>", message.lower())
-            if parsed_message and room.prompt and parsed_message[0] == room.prompt.message.lower():
+            if parsed_message and room.prompt and room.prompt.message.lower() in parsed_message[0]:
                 await self.send(text_data=json.dumps({"message": f"<b><i>🥳🎈🎉 {username} wins! 🥳🎈🎉 </i></b><br>"}))
 
                 self.room.current_round += 1

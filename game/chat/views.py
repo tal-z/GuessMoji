@@ -48,7 +48,8 @@ def room(request, room_name):
             "room_name": room_name,
             "current_round": room.current_round,
             "username": username,
-            "countdown_start_message": "calculating..."
+            "countdown_start_message": "connecting...",
+            "domain": settings.DOMAIN,
         }
     )
 

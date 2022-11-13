@@ -9,6 +9,11 @@ text,
     font-family: 'Lora', sans-serif;
 }
 
+h1,
+#copy-input {
+    color: #b179b8 !important;
+}
+
 .accordion-header {
     border-bottom: none !important;
 }
@@ -19,7 +24,7 @@ text,
 
 .accordion-button,
 .accordion-header,
- #headingOne {
+#headingOne {
     background-color: #b179b8 !important;
     color: white !important;
     border: none !important;
@@ -30,10 +35,20 @@ text,
 
 .btn-primary,
 .btn-primary:hover,
-.btn-primary:active,
 .btn-primary:visited {
+    color: white;
     background-color: #b179b8 !important;
     border: none !important;
+}
+
+a,
+.accordion-button:active,
+.accordion-button.active,
+.btn-primary:active,
+.btn-primary.active,
+.btn-default:active,
+.btn-default.active {
+  color: #4ccf94 !important;
 }
 
 #row-1-wrapper {}

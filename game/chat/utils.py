@@ -7,7 +7,7 @@ words = xp.generate_wordlist(wordfile=word_file, min_length=5, max_length=8)
 
 
 def generate_room_name():
-    return xp.generate_xkcdpassword(words).title().replace(" ", "")
+    return xp.generate_xkcdpassword(words, numwords=4).title().replace(" ", "")
 
 
 def generate_username():

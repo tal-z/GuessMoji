@@ -14,10 +14,26 @@
 <body>
     <div class="container card mt-2 rounded-0">
         <div class="row m-2" id="row-header">
-            <h4>
-                <label>Room name:</label>
-                <text>{{ room_name }}</text>
-            </h4>
+            <form>
+              <div class="input-group rounded-0 mb-1">
+                <input type="text" class="form-control rounded-0 fs-4"
+                    value="{{ domain }}/chat/room/{{ room_name }}" id="copy-input" disabled>
+                <span class="input-group-btn">
+                  <button
+                      class="btn btn-default rounded-0 fs-4"
+                      type="button"
+                      id="copy-button"
+                      data-toggle="tooltip"
+                      data-placement="button"
+                      title="Copy to Clipboard"
+                      onclick="copyLink();"
+                  >
+                    Copy
+                  </button>
+                </span>
+              </div>
+            </form>
+
             <h4>
                 <label class="mb-2">Username:</label>
                 <text>{{ username }}</text>
@@ -393,6 +409,14 @@
             emojiArray = [...value.matchAll(regExpEmoji)];
             emojis = emojiArray.map(item => item[0]).join("");
             return emojis;
+        }
+
+        // Function to copy link to clipboard
+        function copyLink() {
+            var copyText = document.querySelector("#copy-input");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); // For mobile device
+            navigator.clipboard.writeText(copyText.value)
         }
 
 
