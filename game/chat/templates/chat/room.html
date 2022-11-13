@@ -16,8 +16,14 @@
         <div class="row m-2" id="row-header">
             <form>
               <div class="input-group rounded-0 mb-1">
-                <input type="text" class="form-control rounded-0 fs-4"
-                    value="{{ domain }}/chat/room/{{ room_name }}" id="copy-input" disabled>
+                <input
+                    type="text"
+                    class="form-control rounded-0 fs-4"
+                    value=".../chat/room/{{ room_name }}"
+                    id="copy-input"
+                    onfocus="expandLinkText();"
+                    onblur="shortenLinkText();"
+                >
                 <span class="input-group-btn">
                   <button
                       class="btn btn-default rounded-0 fs-4"
@@ -112,7 +118,7 @@
             </div>
         </div>
 
-        <div class="row m-2" id="row-5-wrapper">
+        <div class="row m-2" id="row-5-wrapper" hidden>
             <button
                 class="btn btn-primary rounded-0"
                 id="new-prompt-button"
@@ -270,11 +276,14 @@
                 winnerModal.show();
 
                 var clue = document.querySelector("#emoji-clue-input");
+                var promptContainer = document.querySelector("#row-5-wrapper");
                 clue.value = "";
                 if (userName === leader) {
                     clue.disabled = false;
+                    promptContainer.hidden = false;
                 } else {
                     clue.disabled = true;
+                    promptContainer.hidden = true;
                 }
                 prompt.textContent = "";
 
@@ -411,12 +420,21 @@
             return emojis;
         }
 
+        const copyRoomName = document.querySelector("#copy-input");
+        const domain = "{{ domain }}";
         // Function to copy link to clipboard
         function copyLink() {
-            var copyText = document.querySelector("#copy-input");
-            copyText.select();
-            copyText.setSelectionRange(0, 99999); // For mobile device
-            navigator.clipboard.writeText(copyText.value)
+            copyRoomName.select();
+            copyRoomName.setSelectionRange(0, 99999); // For mobile device
+            navigator.clipboard.writeText(copyRoomName.value)
+        }
+
+        // Function to expand link text to full domain
+        function expandLinkText() {
+            copyRoomName.value =  domain + copyRoomName.value.slice(3);
+        }
+        function shortenLinkText() {
+            copyRoomName.value =  "..." + copyRoomName.value.slice(domain.length);
         }
 
 

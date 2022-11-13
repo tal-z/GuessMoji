@@ -1,0 +1,46 @@
+<!-- chat/templates/chat/lobby.html -->
+<!DOCTYPE html>
+{% extends "base.html" %}
+
+{% block title %}
+    <title>Chat Rooms</title>
+{% endblock title %}
+
+{% block content %}
+<body>
+    <div class="container">
+        <h1>Enter {{ room_name }}!</h1>
+
+        <text for="basic-url" class="form-label">Enter your username</text>
+        <div class="input-group mb-3 rounded-0">
+          <span class="input-group-text rounded-0" id="basic-addon1">@</span>
+          <input id="username-input" type="text" class="form-control rounded-0" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1"  value="{{ placeholder_username }}">
+        </div>
+
+        <input class="btn btn-primary rounded-0" id="room-user-submit" type="button" value="Enter Room">
+
+    </div>
+    <script>
+
+        document.querySelector('#username-input').focus();
+        document.querySelector('#username-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#room-user-submit').click();
+            }
+        };
+
+        document.querySelector('#room-user-submit').onclick = function(e) {
+            var roomName = "{{ room_name }}";
+            var userName = document.querySelector('#username-input').value;
+            var urlParams = `?username=${encodeURIComponent(userName)}`;
+            window.location = '/chat/room/' + roomName + '/' + urlParams;
+        };
+
+        function enterExistingRoom(roomName) {
+            var userName = document.querySelector('#username-input').value;
+            var urlParams = `?username=${encodeURIComponent(userName)}`;
+            window.location = '/chat/room/' + roomName + '/' + urlParams;
+        };
+    </script>
+</body>
+{% endblock content %}

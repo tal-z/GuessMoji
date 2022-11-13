@@ -38,6 +38,11 @@ def lobby(request):
 @login_required()
 def room(request, room_name):
     username = request.GET.get("username")
+
+    if not username:
+        placeholder_username = generate_username()
+        return render(request, "chat/waiting_room.html", {"room_name": room_name, "username": username, "placeholder_username": placeholder_username})
+
     room, _ = Room.objects.get_or_create(room_name=room_name)
     room_member, _ = RoomMember.objects.get_or_create(room=room, username=username)
 
