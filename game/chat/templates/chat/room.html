@@ -13,6 +13,7 @@
 {% block content %}
 <body>
     <div class="container card mt-2 rounded-0">
+        <h1>Guessmoji Room</h1>
         <div class="row m-2" id="row-header">
             <form>
               <div class="input-group rounded-0 mb-1">
@@ -26,7 +27,7 @@
                 >
                 <span class="input-group-btn">
                   <button
-                      class="btn btn-default rounded-0 fs-4"
+                      class="btn btn-secondary btn-dark rounded-0 fs-4"
                       type="button"
                       id="copy-button"
                       data-toggle="tooltip"
@@ -40,22 +41,13 @@
               </div>
             </form>
 
-            <h4>
-                <label class="mb-2">Username:</label>
-                <text>{{ username }}</text>
-            </h4>
-            <h6>
-                <label>Current Round:</label>
-                <text id="current-round">{{ current_round }}</text>
-            </h6>
-            <h6>
-                <label>Leader:</label>
-                <text id="leader">{{ leader }}</text>
-            </h6>
-            <h6>
-                <label>Category:</label>
-                <text id="category">{{ category }}</text>
-            </h6>
+
+            <div class="row" id="room-details">
+                <div class="col-9" id="room-details-spacer"></div>
+                <div class="col-3 text-center my-auto" id="room-details-content">
+
+                </div>
+            </div>
         </div>
 
         <div class="row m-2" id="row-1-wrapper">
@@ -69,6 +61,22 @@
                 disabled
             ></textarea>
             <div class="col text-center my-auto" id="end-round-col">
+                <h6>
+                        <label class="m-2">Username:</label>
+                        <text>{{ username }}</text>
+                    </h6>
+                    <h6>
+                        <label>Current Round:</label>
+                        <text id="current-round">{{ current_round }}</text>
+                    </h6>
+                    <h6>
+                        <label>Leader:</label>
+                        <text id="leader">{{ leader }}</text>
+                    </h6>
+                    <h6>
+                        <label>Category:</label>
+                        <text id="category">{{ category }}</text>
+                    </h6>
                 <label class="m-2">New Round Countdown:</label>
                 <text id="new-round-requests">{{ countdown_start_message }}</text>
                 <button class="btn btn-primary rounded-0" id="end-round-button" onclick="broadcastEndOfRoundVote();">
@@ -405,15 +413,18 @@
             "Tab",
             "Delete",
             "Shift",
+            "Enter",
+            " ",
         ]);
         function preventKeyboardInput(event) {
+            console.log(event);
             if (!(allowedKeys.has(event["key"]))) {
                 event.preventDefault();
             }
         }
 
         // Function to clean the emoji-clue-input
-        const regExpEmoji = /(\u2B55|[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]|[1-9]\uFE0F)/g;
+        const regExpEmoji = /(\s|\uD83E\uDD0F|\u2B55|[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]|[1-9]\uFE0F)/g;
         const cleanEmojiClueInput = (value) => {
             emojiArray = [...value.matchAll(regExpEmoji)];
             emojis = emojiArray.map(item => item[0]).join("");
@@ -423,18 +434,44 @@
         const copyRoomName = document.querySelector("#copy-input");
         const domain = "{{ domain }}";
         // Function to copy link to clipboard
-        function copyLink() {
+        function _copyLink() {
             copyRoomName.select();
             copyRoomName.setSelectionRange(0, 99999); // For mobile device
-            navigator.clipboard.writeText(copyRoomName.value)
+            navigator.clipboard.writeText(copyRoomName.value);
+        }
+
+        function copyLink() {
+            // navigator clipboard api needs a secure context (https)
+            copyRoomName.select();
+            copyRoomName.setSelectionRange(0, 99999); // For mobile device
+            if (navigator.clipboard && window.isSecureContext) {
+                // navigator clipboard api method'
+                return navigator.clipboard.writeText(copyRoomName.value);
+            } else {
+                // text area method
+                let tempTextArea = document.createElement("tempTextArea");
+                tempTextArea.value = copyRoomName.value;
+                // make the textarea out of viewport
+                tempTextArea.style.position = "fixed";
+                tempTextArea.style.left = "-999999px";
+                tempTextArea.style.top = "-999999px";
+                document.body.appendChild(tempTextArea);
+                // tempTextArea.focus();
+                // tempTextArea.select();
+                return new Promise((res, rej) => {
+                    document.execCommand('copy') ? res() : rej();
+                    tempTextArea.remove();
+                });
+            }
         }
 
         // Function to expand link text to full domain
         function expandLinkText() {
-            copyRoomName.value =  domain + copyRoomName.value.slice(3);
+
+            copyRoomName.value =  domain + "/chat/room/{{ room_name }}";
         }
         function shortenLinkText() {
-            copyRoomName.value =  "..." + copyRoomName.value.slice(domain.length);
+            copyRoomName.value =  "..." + "/chat/room/{{ room_name }}";
         }
 
 

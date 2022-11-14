@@ -3,14 +3,14 @@
 }
 
 text,
+#copy-input,
 #chat-message-input,
 #username-input,
 #room-name-input {
     font-family: 'Lora', sans-serif;
 }
 
-h1,
-#copy-input {
+h1 {
     color: #b179b8 !important;
 }
 
@@ -47,7 +47,9 @@ a,
 .btn-primary:active,
 .btn-primary.active,
 .btn-default:active,
-.btn-default.active {
+.btn-default.active,
+.btn-secondary:active,
+.btn-secondary.active {
   color: #4ccf94 !important;
 }
 
