@@ -9,30 +9,58 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('prompts', '0001_initial'),
+        ("prompts", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Room',
+            name="Room",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('room_name', models.CharField(max_length=50, unique=True)),
-                ('end_of_round_reached_count', models.IntegerField(default=0)),
-                ('current_round', models.IntegerField(default=0)),
-                ('_leader', models.CharField(max_length=50, null=True)),
-                ('prompt', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='prompts.prompt')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("room_name", models.CharField(max_length=50, unique=True)),
+                ("end_of_round_reached_count", models.IntegerField(default=0)),
+                ("current_round", models.IntegerField(default=0)),
+                ("_leader", models.CharField(max_length=50, null=True)),
+                (
+                    "prompt",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="prompts.prompt",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='RoomMember',
+            name="RoomMember",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('username', models.CharField(max_length=50)),
-                ('room', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='chat.room')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("username", models.CharField(max_length=50)),
+                (
+                    "room",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="chat.room"
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('room', 'username')},
+                "unique_together": {("room", "username")},
             },
         ),
     ]

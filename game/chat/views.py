@@ -32,7 +32,7 @@ def lobby(request):
             "room_names": room_names,
             "domain": settings.DOMAIN,
             "emojis": emojis,
-        }
+        },
     )
 
 
@@ -49,7 +49,7 @@ def room(request, room_name):
                 "username": username,
                 "placeholder_username": placeholder_username,
                 "emojis": emojis,
-            }
+            },
         )
 
     room, _ = Room.objects.get_or_create(room_name=room_name)
@@ -69,7 +69,7 @@ def room(request, room_name):
             "user_emoji": room_member.emoji,
             "countdown_start_message": "connecting...",
             "domain": settings.DOMAIN,
-        }
+        },
     )
 
 
@@ -78,11 +78,13 @@ def new_prompt(request, room_name):
     if not request.method == "GET":
         raise Exception("Invalid method")
     room = Room.objects.get(room_name=room_name)
-    username = request.GET.get('username')
+    username = request.GET.get("username")
     if not username == room.leader:
         return JsonResponse({"error": "Only the leader can request a prompt."})
     updated_prompt = room.update_prompt()
-    return JsonResponse({
-        "updated_prompt": updated_prompt.message,
-        "updated_category": updated_prompt.category,
-    })
+    return JsonResponse(
+        {
+            "updated_prompt": updated_prompt.message,
+            "updated_category": updated_prompt.category,
+        }
+    )

@@ -17,8 +17,11 @@ class Prompt(models.Model):
     """
     Model for storing prompts that a user will attempt to communicate via only emojis.
     """
+
     message = models.CharField(max_length=500)
-    category = models.CharField(max_length=50, choices=category_choices, null=True, blank=True)
+    category = models.CharField(
+        max_length=50, choices=category_choices, null=True, blank=True
+    )
     hints = models.CharField(max_length=10, null=True, blank=True)
 
     def __str__(self):
@@ -37,7 +40,12 @@ class PromptClue(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ("room_id", "leader_id", "prompt", "clue",)
+        unique_together = (
+            "room_id",
+            "leader_id",
+            "prompt",
+            "clue",
+        )
 
 
 class ClueGuess(models.Model):

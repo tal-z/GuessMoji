@@ -8,42 +8,86 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='ClueGuess',
+            name="ClueGuess",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('room_id', models.IntegerField()),
-                ('roommember_id', models.IntegerField()),
-                ('clue', models.CharField(max_length=50)),
-                ('guess', models.CharField(max_length=500)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("room_id", models.IntegerField()),
+                ("roommember_id", models.IntegerField()),
+                ("clue", models.CharField(max_length=50)),
+                ("guess", models.CharField(max_length=500)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Prompt',
+            name="Prompt",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('message', models.CharField(max_length=500)),
-                ('category', models.CharField(blank=True, choices=[('Movie Titles', 'Movie Titles'), ('Song Titles', 'Song Titles'), ('Pop Culture', 'Pop Culture'), ('Miscellaneous', 'Miscellaneous'), ('Idioms', 'Idioms'), ('Places/Attractions', 'Places/Attractions'), ('Toys and Games', 'Toys and Games')], max_length=50, null=True)),
-                ('hints', models.CharField(blank=True, max_length=10, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("message", models.CharField(max_length=500)),
+                (
+                    "category",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("Movie Titles", "Movie Titles"),
+                            ("Song Titles", "Song Titles"),
+                            ("Pop Culture", "Pop Culture"),
+                            ("Miscellaneous", "Miscellaneous"),
+                            ("Idioms", "Idioms"),
+                            ("Places/Attractions", "Places/Attractions"),
+                            ("Toys and Games", "Toys and Games"),
+                        ],
+                        max_length=50,
+                        null=True,
+                    ),
+                ),
+                ("hints", models.CharField(blank=True, max_length=10, null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='PromptClue',
+            name="PromptClue",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('room_id', models.IntegerField()),
-                ('leader_id', models.IntegerField()),
-                ('clue', models.CharField(max_length=50)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('prompt', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='prompts.prompt')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("room_id", models.IntegerField()),
+                ("leader_id", models.IntegerField()),
+                ("clue", models.CharField(max_length=50)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "prompt",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT, to="prompts.prompt"
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('room_id', 'leader_id', 'prompt', 'clue')},
+                "unique_together": {("room_id", "leader_id", "prompt", "clue")},
             },
         ),
     ]

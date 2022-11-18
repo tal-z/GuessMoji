@@ -21,5 +21,3 @@ def generate_username():
     name_words = "".join([random.choice(cases)(word) for word in name_words.split()])
     random_int = random.randint(0, 99999)
     return f"{name_words}{random_int}"
-
-

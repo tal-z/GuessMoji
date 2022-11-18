@@ -2,9 +2,10 @@ from django.db import models
 from prompts.models import Prompt
 import random
 
+
 class Room(models.Model):
     room_name = models.CharField(max_length=50, unique=True)
-    prompt = models.ForeignKey('prompts.Prompt', on_delete=models.CASCADE, null=True)
+    prompt = models.ForeignKey("prompts.Prompt", on_delete=models.CASCADE, null=True)
     end_of_round_reached_count = models.IntegerField(default=0)
     current_round = models.IntegerField(default=0)
     _leader = models.CharField(max_length=50, null=True)
@@ -23,13 +24,13 @@ class Room(models.Model):
         return RoomMember.objects.filter(room=self).count()
 
     def set_random_next_leader(self):
-        self.leader = RoomMember.objects.filter(
-            room=self
-        ).exclude(
-            username=self.leader
-        ).values_list(
-            "username", flat=True
-        ).order_by("?").first()
+        self.leader = (
+            RoomMember.objects.filter(room=self)
+            .exclude(username=self.leader)
+            .values_list("username", flat=True)
+            .order_by("?")
+            .first()
+        )
         self.save()
         return self.leader
 
@@ -42,15 +43,20 @@ class Room(models.Model):
     def update_prompt(self):
         if not self.prompt:
             return self.get_current_prompt()
-        new_prompt = Prompt.objects.exclude(message=self.prompt.message).order_by("?")[0]
+        new_prompt = Prompt.objects.exclude(message=self.prompt.message).order_by("?")[
+            0
+        ]
         self.prompt = new_prompt
         self.save()
         return self.prompt
 
+
 emojis = ["🕵️", "🐙", "🌭", "🐱", "👹", "🎠", "🐝", "🐛", "👙", "🎣"]
+
 
 def default_emoji():
     return random.choice(emojis)
+
 
 class RoomMember(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
@@ -58,5 +64,7 @@ class RoomMember(models.Model):
     emoji = models.CharField(max_length=2, default=default_emoji)
 
     class Meta:
-        unique_together = ("room", "username",)
-
+        unique_together = (
+            "room",
+            "username",
+        )
