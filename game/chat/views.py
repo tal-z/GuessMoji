@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 
-from .models import Room, RoomMember
+from .models import Room, RoomMember, emojis
 
 from prompts.models import Prompt
 
@@ -30,21 +30,34 @@ def lobby(request):
             "placeholder_room_name": placeholder_room_name,
             "placeholder_username": placeholder_username,
             "room_names": room_names,
-            "domain": settings.DOMAIN
+            "domain": settings.DOMAIN,
+            "emojis": emojis,
         }
     )
 
 
 @login_required()
 def room(request, room_name):
-    username = request.GET.get("username")
-
+    username = request.POST.get("username-input")
     if not username:
         placeholder_username = generate_username()
-        return render(request, "chat/waiting_room.html", {"room_name": room_name, "username": username, "placeholder_username": placeholder_username})
+        return render(
+            request,
+            "chat/waiting_room.html",
+            {
+                "room_name": room_name,
+                "username": username,
+                "placeholder_username": placeholder_username,
+                "emojis": emojis,
+            }
+        )
 
     room, _ = Room.objects.get_or_create(room_name=room_name)
-    room_member, _ = RoomMember.objects.get_or_create(room=room, username=username)
+    kwargs = {"room": room, "username": username}
+    emoji = request.POST.get("emoji-selection")
+    if emoji:
+        kwargs["emoji"] = emoji
+    room_member, _ = RoomMember.objects.get_or_create(**kwargs)
 
     return render(
         request,
@@ -53,6 +66,7 @@ def room(request, room_name):
             "room_name": room_name,
             "current_round": room.current_round,
             "username": username,
+            "user_emoji": room_member.emoji,
             "countdown_start_message": "connecting...",
             "domain": settings.DOMAIN,
         }

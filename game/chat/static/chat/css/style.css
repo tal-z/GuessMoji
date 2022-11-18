@@ -29,6 +29,10 @@ h1 {
     color: white !important;
     border: none !important;
 }
+.accordion-item {
+    color: white !important;
+}
+
 .accordion-button:after {
     background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'><path fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/></svg>") !important;
 }
@@ -94,6 +98,7 @@ emoji-picker {
 #end-round-col {
     width: 10%;
     margin: 5px;
+    display: block;
 }
 
 #end-round-button {
@@ -139,6 +144,20 @@ input[type="color"]:focus,
 .btn:focus,
 .accordion-button:focus,
 input:focus,
-#chat-members:focus {
+#chat-members:focus,
+.form-select:focus {
     box-shadow: 0px 0px 5px 5px rgba(249, 215, 250, 1) !important;
+}
+
+.form-select {
+    background-image: none !important;
+    width: auto !important;
+    padding: 1px 1px 1px 1px !important;
+}
+
+#copy-button {
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-top-right-radius: .375rem;
+    border-bottom-right-radius: .375rem;
 }

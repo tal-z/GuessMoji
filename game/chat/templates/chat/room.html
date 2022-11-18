@@ -12,14 +12,15 @@
 
 {% block content %}
 <body>
-    <div class="container card mt-2 rounded-0">
+    <div class="container">
         <h1>Guessmoji Room</h1>
+        <h4>{{ user_emoji }}{{ username }}</h4>
         <div class="row m-2" id="row-header">
             <form>
-              <div class="input-group rounded-0 mb-1">
+              <div class="input-group mb-1">
                 <input
                     type="text"
-                    class="form-control rounded-0 fs-4"
+                    class="form-control fs-4"
                     value=".../chat/room/{{ room_name }}"
                     id="copy-input"
                     onfocus="expandLinkText();"
@@ -27,7 +28,7 @@
                 >
                 <span class="input-group-btn">
                   <button
-                      class="btn btn-secondary btn-dark rounded-0 fs-4"
+                      class="btn btn-secondary btn-dark fs-4"
                       type="button"
                       id="copy-button"
                       data-toggle="tooltip"
@@ -35,7 +36,7 @@
                       title="Copy to Clipboard"
                       onclick="copyLink();"
                   >
-                    Copy
+                    Copy & Share
                   </button>
                 </span>
               </div>
@@ -62,24 +63,20 @@
             ></textarea>
             <div class="col text-center my-auto" id="end-round-col">
                 <h6>
-                        <label class="m-2">Username:</label>
-                        <text>{{ username }}</text>
-                    </h6>
-                    <h6>
-                        <label>Current Round:</label>
-                        <text id="current-round">{{ current_round }}</text>
-                    </h6>
-                    <h6>
-                        <label>Leader:</label>
-                        <text id="leader">{{ leader }}</text>
-                    </h6>
-                    <h6>
-                        <label>Category:</label>
-                        <text id="category">{{ category }}</text>
-                    </h6>
+                    <label>Current Round:</label>
+                    <text id="current-round">{{ current_round }}</text>
+                </h6>
+                <h6>
+                    <label>Leader:</label>
+                    <text id="leader">{{ leader }}</text>
+                </h6>
+                <h6>
+                    <label>Category:</label>
+                    <text id="category">{{ category }}</text>
+                </h6>
                 <label class="m-2">New Round Countdown:</label>
                 <text id="new-round-requests">{{ countdown_start_message }}</text>
-                <button class="btn btn-primary rounded-0" id="end-round-button" onclick="broadcastEndOfRoundVote();">
+                <button class="btn btn-primary" id="end-round-button" onclick="broadcastEndOfRoundVote();">
                     Request New Round!
                 </button>
             </div>
@@ -87,17 +84,17 @@
         </div>
 
         <div class="row m-2" id="row-2-wrapper">
-            <div class="accordion" id="accordionExample">
-              <div class="accordion-item rounded-0">
-                <h2 class="accordion-header rounded-0" id="headingOne">
-                  <button id="emojiCollapse" class="accordion-button rounded-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                    Emoji Picker
-                  </button>
-                </h2>
-                <div id="collapseOne" class="accordion-collapse collapse rounded-0" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-                  <div class="accordion-body rounded-0">
-                      <emoji-picker class="col"></emoji-picker>
-                  </div>
+            <div class="accordion rounded-2" id="accordionExample">
+              <div class="accordion-item rounded-2">
+                    <h2 class="accordion-header rounded-2" id="headingOne">
+                        <button id="emojiCollapse" class="accordion-button rounded-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            Emoji Picker
+                        </button>
+                    </h2>
+                <div id="collapseOne" class="accordion-collapse collapse rounded-2" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                <div class="accordion-body rounded-2">
+                    <emoji-picker class="col"></emoji-picker>
+                </div>
                 </div>
               </div>
             </div>
@@ -111,15 +108,15 @@
        </div>
 
         <div class="row m-2" id="row-4-wrapper">
-            <input class="col rounded-0" id="chat-message-input" type="text">
-            <input class="col-1 btn btn-primary rounded-0" id="chat-message-submit" type="button" value="Send">
+            <input class="col" id="chat-message-input" type="text">
+            <input class="col-1 btn btn-primary" id="chat-message-submit" type="button" value="Send">
 
             <div class="col-1">
                 <div class="form-group">
                      <label id="chat-mode-label">Chat Mode</label>
                      <div class="form-check form-switch custom-control custom-switch">
                          <label class="switch">
-                            <input class="form-check-input custom-control-input rounded-0" type="checkbox" role="switch" id="chat-mode-switch" onchange="updateChatModeText()" checked data-toggle="tooltip" data-placement="bottom" title="Toggle to Guess/Chat">
+                            <input class="form-check-input custom-control-input" type="checkbox" role="switch" id="chat-mode-switch" onchange="updateChatModeText()" checked data-toggle="tooltip" data-placement="bottom" title="Toggle to Guess/Chat">
                          </label>
                       </div>
                  </div>
@@ -128,7 +125,7 @@
 
         <div class="row m-2" id="row-5-wrapper" hidden>
             <button
-                class="btn btn-primary rounded-0"
+                class="btn btn-primary"
                 id="new-prompt-button"
                 onclick="newPrompt()"
             >
@@ -148,17 +145,17 @@
 
     <!-- Modal -->
     <div class="modal fade" id="winnerModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog rounded-0">
-        <div class="modal-content rounded-0">
-          <div class="modal-header rounded-0">
-            <h5 class="modal-title rounded-0" id="exampleModalLabel">Starting a New Round!</h5>
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Starting a New Round!</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body rounded-0" id="winnerModalBody">
+          <div class="modal-body" id="winnerModalBody">
               Next leader: <text id="winnerModalText"></text>
           </div>
-          <div class="modal-footer rounded-0">
-            <button type="button" class="btn btn-primary rounded-0" data-bs-dismiss="modal">Close</button>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
           </div>
         </div>
       </div>
@@ -169,7 +166,6 @@
 
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script>
-
         const prompt = document.querySelector("#prompt");
         const category = document.querySelector("#category");
 
@@ -243,13 +239,13 @@
 
             // update last affirmation timestamp in chatMembers Object
             if (Object.hasOwn(data, 'username')) {
-                chatMembers[data.username] = Date.now();
+                chatMembers[data.username] = [ Date.now(), data.user_emoji ];
             }
 
             // evict old entries from chatMembers
             now = Date.now();
-            for (const [key, value] of Object.entries(chatMembers)) {
-                diff = (now - value) / 1000;
+            for (const [key, [timestamp, userEmoji]] of Object.entries(chatMembers)) {
+                diff = (now - timestamp) / 1000;
                 if (diff > 2) {
                     // Remove key from chatMembers
                     delete chatMembers[key];
@@ -257,7 +253,17 @@
 
             }
             // display chatMembers
-            document.querySelector('#chat-members').innerText = Object.keys(chatMembers).join("\n");
+            let memberString = "";
+            for (const userKey in chatMembers) {
+                [timestamp, userEmoji] = chatMembers[userKey];
+                console.log(userKey, userName);
+                if (userKey === userName) {
+                    memberString += "<label>" + userEmoji + userKey + "</label><br>";
+                } else {
+                    memberString += "<text>" +userEmoji + userKey + "</text><br>";
+                }
+            }
+            document.querySelector('#chat-members').innerHTML = memberString;
 
             // Count requests until new round
             let numMembers = Object.keys(chatMembers).length;
@@ -372,7 +378,7 @@
             if (!chatModeSwitch.checked) {
                 messageText = `<i><text style="color: #4ccf94;">${messageText}</text></i>`;
             }
-            return `<text><label>${userName}:</label>  ${messageText}</text><br>`;
+            return `<text><b><text>${userName}:</text></b>  ${messageText}</text><br>`;
         }
 
         document.querySelector('#chat-message-submit').onclick = function(e) {
@@ -381,6 +387,7 @@
             chatSocket.send(JSON.stringify({
                 'message': formatChatMessage(userName, messageText),
                 'username': userName,
+                'user_emoji': "{{ user_emoji }}",
                 'chat_mode': chatModeSwitch.checked  // false === guess mode, so actively process guesses
             }));
             messageInputDom.value = '';
@@ -389,7 +396,8 @@
         // Set Interval for sending username to consumer, who broadcasts it to all connections
         const intervalID = setInterval(() => {
             chatSocket.send(JSON.stringify({
-                'username': userName
+                'username': userName,
+                'user_emoji': "{{ user_emoji }}"
             }));
             broadcastEmojiClueChange();
         }, 1000);
@@ -481,6 +489,7 @@
                 clue = document.querySelector("#emoji-clue-input").value;
                 chatSocket.send(JSON.stringify({
                     'username': userName,
+                    'user_emoji': "{{ user_emoji }}",
                     'update_emoji_clue': cleanEmojiClueInput(clue)
                 }));
             }

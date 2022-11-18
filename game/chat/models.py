@@ -1,5 +1,6 @@
 from django.db import models
 from prompts.models import Prompt
+import random
 
 class Room(models.Model):
     room_name = models.CharField(max_length=50, unique=True)
@@ -46,10 +47,15 @@ class Room(models.Model):
         self.save()
         return self.prompt
 
+emojis = ["🕵️", "🐙", "🌭", "🐱", "👹", "🎠", "🐝", "🐛", "👙", "🎣"]
+
+def default_emoji():
+    return random.choice(emojis)
 
 class RoomMember(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     username = models.CharField(max_length=50)
+    emoji = models.CharField(max_length=2, default=default_emoji)
 
     class Meta:
         unique_together = ("room", "username",)

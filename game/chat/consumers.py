@@ -37,8 +37,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         if "username" in text_data_json:
             username = text_data_json["username"]
+            user_emoji = text_data_json["user_emoji"]
             await self.channel_layer.group_send(
-                self.room_group_name, {"type": "connection_affirmation", "username": username}
+                self.room_group_name, {"type": "connection_affirmation", "username": username, "user_emoji": user_emoji}
             )
         if "message" in text_data_json:
             message = text_data_json["message"]
@@ -105,8 +106,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
     # Receive connection affirmation from room group
     async def connection_affirmation(self, event):
         username = event["username"]
+        user_emoji = event["user_emoji"]
         # Send message to WebSocket
-        await self.send(text_data=json.dumps({"username": username}))
+        await self.send(text_data=json.dumps({"username": username, "user_emoji": user_emoji}))
 
     # Receive emoji clue update from room group
     async def update_emoji_clue(self, event):

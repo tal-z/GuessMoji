@@ -10,15 +10,22 @@
 <body>
     <div class="container">
         <h1>Enter {{ room_name }}!</h1>
+        <form method="post" id="join-room-form" id="TB_sample"action="/chat/room/{{ room_name }}/">
+            {% csrf_token %}
+            <text for="basic-url" class="form-label">Enter your username</text>
+            <div class="input-group mb-3">
+                <span class="input-group-text" id="basic-addon1">
+                    <select class="form-select" name="emoji-selection" id="emoji-selection" aria-label="Default select example">
+                        {% for emoji in emojis %}
+                            <option value="{{ emoji }}">{{ emoji }}</option>
+                        {% endfor %}
+                    </select>
+                </span>
+                <input id="username-input" name="username-input" type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1"  value="{{ placeholder_username }}">
+            </div>
 
-        <text for="basic-url" class="form-label">Enter your username</text>
-        <div class="input-group mb-3 rounded-0">
-          <span class="input-group-text rounded-0" id="basic-addon1">@</span>
-          <input id="username-input" type="text" class="form-control rounded-0" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1"  value="{{ placeholder_username }}">
-        </div>
-
-        <input class="btn btn-primary rounded-0" id="room-user-submit" type="button" value="Enter Room">
-
+            <input class="btn btn-primary" id="room-user-submit" type="button" value="Enter Room">
+        </form>
     </div>
     <script>
 
@@ -30,10 +37,7 @@
         };
 
         document.querySelector('#room-user-submit').onclick = function(e) {
-            var roomName = "{{ room_name }}";
-            var userName = document.querySelector('#username-input').value;
-            var urlParams = `?username=${encodeURIComponent(userName)}`;
-            window.location = '/chat/room/' + roomName + '/' + urlParams;
+            document.querySelector('#join-room-form').submit()
         };
 
         function enterExistingRoom(roomName) {
