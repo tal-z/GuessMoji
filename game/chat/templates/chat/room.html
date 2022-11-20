@@ -233,7 +233,7 @@
             const data = JSON.parse(e.data);
             // populate chat messages
             if (Object.hasOwn(data, 'message')) {
-                document.querySelector('#chat-log').innerHTML += data.message;
+                document.querySelector('#chat-log').innerHTML += formatChatMessage(data.user_emoji, data.username, data.message);
                 textarea.scrollTop = textarea.scrollHeight;
             }
 
@@ -373,19 +373,19 @@
                 return "&" + {"&":"amp", "<":"lt", ">":"gt", '"':"quot", "'":"#39"}[$0] + ";";
             });
         }
-        function formatChatMessage(userName, messageText) {
+        function formatChatMessage(userEmoji, userName, messageText) {
             messageText = htmlEncode(messageText);
             if (!chatModeSwitch.checked) {
                 messageText = `<i><text style="color: #4ccf94;">${messageText}</text></i>`;
             }
-            return `<text><b><text>${userName}:</text></b>  ${messageText}</text><br>`;
+            return `<text><b><text>${userEmoji}${userName}:</text></b>  ${messageText}</text><br>`;
         }
 
         document.querySelector('#chat-message-submit').onclick = function(e) {
             const messageInputDom = document.querySelector('#chat-message-input');
             const messageText = messageInputDom.value;
             chatSocket.send(JSON.stringify({
-                'message': formatChatMessage(userName, messageText),
+                'message': messageText,
                 'username': userName,
                 'user_emoji': "{{ user_emoji }}",
                 'chat_mode': chatModeSwitch.checked  // false === guess mode, so actively process guesses

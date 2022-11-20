@@ -52,6 +52,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if "message" in text_data_json:
             message = text_data_json["message"]
             chat_mode = text_data_json["chat_mode"]
+            user_emoji = text_data_json["user_emoji"]
 
             # Send message to room group
             await self.channel_layer.group_send(
@@ -60,6 +61,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "type": "chat_message",
                     "message": message,
                     "username": self.username,
+                    "user_emoji": user_emoji,
                     "chat_mode": chat_mode,
                 },
             )
@@ -110,21 +112,27 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def chat_message(self, event):
         message = event["message"]
         username = event["username"]
+        user_emoji = event["user_emoji"]
+        chat_mode = event["chat_mode"]
         # Send message to WebSocket
         await self.send(
-            text_data=json.dumps({"message": message, "username": username})
+            text_data=json.dumps({
+                "message": message,
+                "username": username,
+                "user_emoji": user_emoji,
+                "chat_mode": chat_mode,
+            })
         )
         # check guess if guess mode
-        guess_mode = not event["chat_mode"]
-        if guess_mode:
+        if not chat_mode:
             room = await Room.objects.select_related("prompt").aget(
                 room_name=self.room_name
             )
-            parsed_message = re.findall(r"<i>(.+)</i>", message.lower())
+            print(message)
             if (
-                parsed_message
+                message
                 and room.prompt
-                and room.prompt.message.lower() in parsed_message[0]
+                and room.prompt.message.lower() in message
             ):
                 await self.send(
                     text_data=json.dumps(
