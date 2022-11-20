@@ -69,6 +69,7 @@ def room(request, room_name):
             "user_emoji": room_member.emoji,
             "countdown_start_message": "connecting...",
             "domain": settings.DOMAIN,
+            "leader": room.leader,
         },
     )
 

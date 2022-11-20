@@ -68,12 +68,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if "update_emoji_clue" in text_data_json:
             update_emoji_clue = text_data_json["update_emoji_clue"]
             # Send message to room group only if it comes from leader
-            if self.username == self.room_leaders[self.room_name]:
+            leader = self.room_leaders[self.room_name]
+            if self.username == leader:
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
                         "type": "update_emoji_clue",
                         "update_emoji_clue": update_emoji_clue,
+                        "leader": leader,
                     },
                 )
         if "start_new_round" in text_data_json:
@@ -128,7 +130,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             room = await Room.objects.select_related("prompt").aget(
                 room_name=self.room_name
             )
-            print(message)
             if (
                 message
                 and room.prompt
@@ -162,8 +163,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
     # Receive emoji clue update from room group
     async def update_emoji_clue(self, event):
         update_emoji_clue = event["update_emoji_clue"]
+        leader = event["leader"]
         # Send message to WebSocket
-        await self.send(text_data=json.dumps({"update_emoji_clue": update_emoji_clue}))
+        await self.send(text_data=json.dumps({"update_emoji_clue": update_emoji_clue, "leader": leader}))
 
     async def round_requests_update(self, event):
         await self.send(

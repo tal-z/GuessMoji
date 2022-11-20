@@ -34,7 +34,6 @@
                       data-toggle="tooltip"
                       data-placement="button"
                       title="Copy to Clipboard"
-                      onclick="copyLink();"
                   >
                     Copy & Share
                   </button>
@@ -56,8 +55,6 @@
                 class="col-8"
                 id="emoji-clue-input"
                 type="text"
-                onkeydown="preventKeyboardInput(event)"
-                oninput="broadcastEmojiClueChange()"
                 placeholder="Emojis go here!"
                 disabled
             ></textarea>
@@ -76,7 +73,7 @@
                 </h6>
                 <label class="m-2">New Round Countdown:</label>
                 <text id="new-round-requests">{{ countdown_start_message }}</text>
-                <button class="btn btn-primary" id="end-round-button" onclick="broadcastEndOfRoundVote();">
+                <button class="btn btn-primary" id="end-round-button">
                     Request New Round!
                 </button>
             </div>
@@ -127,7 +124,6 @@
             <button
                 class="btn btn-primary"
                 id="new-prompt-button"
-                onclick="newPrompt()"
             >
                 Get New Prompt!
             </button>
@@ -163,16 +159,17 @@
 
 
     {{ room_name|json_script:"room-name" }}
+    {{ username|json_script:"username" }}
+    {{ user_emoji|json_script:"user-emoji" }}
+    {{ domain|json_script:"domain" }}
+    {{ leader|json_script:"start-leader" }}
 
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <script>
-        const isUserName = ("{{ username }}" != "None") && ("{{ username }}" != "");
-        const userName = isUserName ? "{{ username }}" : "Anonymous";
-        const domain = "{{ domain }}";
-
-        var userEmoji = "{{ user_emoji }}";
-        var leader = "{{ leader }}";
     </script>
-    <script type="text/javascript" src="{% static '/chat/js/room.js' %}"></script>
+        <script type="module">
+            import main from  '/static/chat/js/room.js';
+            main()
+        </script>
 </body>
 {% endblock content %}
