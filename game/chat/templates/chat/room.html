@@ -192,9 +192,6 @@
 
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
   <script></script>
-  <script type="module">
-    import main from "/static/chat/js/room.js";
-    main();
-  </script>
+  <script src="{% static 'chat/js/room.js' %}"></script>
 </body>
 {% endblock content %}
